@@ -67,7 +67,7 @@ export const createUser = async (req, res) => {
       message: "All fields are required",
     });
   }
-
+  
   try {
     const userRecord = await getAuth().createUser({
       email,

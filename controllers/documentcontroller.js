@@ -104,3 +104,62 @@ export const createDocument = async (req, res) => {
     });
   }
 };
+
+export const updateDocument = async (req, res) => {
+  try {
+    const ID = req.params.id;
+    const { name, personInCharge, status, uploadedFileUrl } = req.body;
+
+    if (!name || !status) {
+      return res.status(401).json({
+        status: res.statusCode,
+        message: "Unprocessable Content",
+      });
+    }
+
+    await updateDoc(doc(db, "Documents", ID), {
+      name,
+      personInCharge,
+      status,
+      uploadedFileUrl,
+    });
+
+    res.status(200).json({
+      status: res.statusCode,
+      message: "Updated Successfully!",
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: res.statusCode,
+      message: error.message,
+    });
+  }
+};
+
+export const deleteDocument = async (req, res) => {
+  try {
+    const ID = req.params.id;
+
+    const documentsCollection = await getDocs(collection(db, "Documents"));
+    const document = documentsCollection.docs.find((u) => u.id === ID);
+
+    if (!document) {
+      return res.status(404).json({
+        status: res.statusCode,
+        message: "Document not found",
+      });
+    }
+
+    await deleteDoc(doc(db, "Documents", ID));
+
+    return res.status(200).json({
+      status: res.statusCode,
+      message: "Delete Successfully!",
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: res.statusCode,
+      message: error.message,
+    });
+  }
+};

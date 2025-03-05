@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import path from "path";
 import users from "./routes/users.js";
+import documents from "./routes/documents.js";
 import { fileURLToPath } from "url";
 import { logger } from "./middleware/logger.js";
 import { notFound, error } from "./middleware/errors.js";
@@ -28,6 +29,7 @@ app.use(express.urlencoded({ extended: false }));
 app.get('/favicon.ico', (req, res) => res.status(204).end());
 
 app.use('/api/users', users);
+app.use('/api/documents', documents);
 
 app.use(notFound);
 app.use(error);

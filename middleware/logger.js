@@ -19,7 +19,7 @@ export const logger = (req, res, next) => {
     }
 
     console.log(`Middleware Status: ${res.statusCode < 400 ? "Ok" : "Not Ok"}`);
-    console.log(`Response Time: ${duration}ms`);
+    console.log(`Response Time: ${duration}ms \n`);
   });
   next();
 };
