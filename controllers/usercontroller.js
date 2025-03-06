@@ -1,4 +1,4 @@
-import { db, auth } from "../firebase.js";
+import { db } from "../firebase.js";
 import {
   doc,
   addDoc,
@@ -9,7 +9,6 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { getAuth } from "firebase-admin/auth";
-import { createUserWithEmailAndPassword } from "firebase/auth";
 
 export const getAllUsers = async (req, res) => {
   try {
@@ -61,7 +60,6 @@ export const getUser = async (req, res) => {
 
 export const createUser = async (req, res) => {
   const { email, password } = req.body;
-  
 
   if (!email || !password) {
     return res.status(401).json({
@@ -71,19 +69,22 @@ export const createUser = async (req, res) => {
   }
 
   try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-
-    await addDoc(collection(db, "Users"), {
+    const userRecord = await getAuth().createUser({
       email,
-      id: user.uid,
+      password,
     });
 
-    return res.status(200).json({
-      status: res.statusCode,
-      message: "User Created Successfully!",
-      user: { email: user.email, id: user.uid },
+    const users = await addDoc(collection(db, "Users"), {
+      email,
+      id: userRecord.uid
     });
+
+    if (users || userRecord) {
+      return res.status(200).json({
+        status: res.statusCode,
+        message: "User created successfully",
+      });
+    }
   } catch (error) {
     return res.status(500).json({
       status: res.statusCode,
