@@ -1,4 +1,4 @@
-import { db } from "../firebase.js";
+import { db, auth } from "../firebase.js";
 import {
   doc,
   addDoc,
@@ -9,6 +9,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { getAuth } from "firebase-admin/auth";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 
 export const getAllUsers = async (req, res) => {
   try {
@@ -60,6 +61,7 @@ export const getUser = async (req, res) => {
 
 export const createUser = async (req, res) => {
   const { email, password } = req.body;
+  
 
   if (!email || !password) {
     return res.status(401).json({
@@ -67,25 +69,21 @@ export const createUser = async (req, res) => {
       message: "All fields are required",
     });
   }
-  
+
   try {
-    const userRecord = await getAuth().createUser({
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+
+    await addDoc(collection(db, "Users"), {
       email,
-      password,
+      id: user.uid,
     });
 
-    const users = await addDoc(collection(db, "Users"), {
-      email,
-      password,
-      id: userRecord.uid,
+    return res.status(200).json({
+      status: res.statusCode,
+      message: "User Created Successfully!",
+      user: { email: user.email, id: user.uid },
     });
-
-    if (users || userRecord) {
-      return res.status(200).json({
-        status: res.statusCode,
-        message: "User Created Successfully!",
-      });
-    }
   } catch (error) {
     return res.status(500).json({
       status: res.statusCode,
@@ -118,25 +116,25 @@ export const editUser = async (req, res) => {
     }
   } catch (error) {
     res.status(500).json({
-        status: res.statusCode,
-        message: error.message
+      status: res.statusCode,
+      message: error.message,
     });
   }
 };
 
 export const deleteUser = async (req, res) => {
-    try {
-        const ID = req.params.id;
-        const users = await deleteDoc(doc(db, "Users", ID));
+  try {
+    const ID = req.params.id;
+    const users = await deleteDoc(doc(db, "Users", ID));
 
-        return res.status(200).json({
-            status: res.statusCode,
-            message: "Deleted Successfully"
-        })
-    } catch (error) {
-        res.status(500).json({
-            status: res.statusCode,
-            message: error.message
-        });
-    }
-}
+    return res.status(200).json({
+      status: res.statusCode,
+      message: "Deleted Successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: res.statusCode,
+      message: error.message,
+    });
+  }
+};
