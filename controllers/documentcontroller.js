@@ -16,6 +16,7 @@ export const getAllDocuments = async (req, res) => {
     const documentSnapshot = await getDocs(documentsCollection);
     const documents = documentSnapshot.docs.map((doc) => ({
       ...doc.data(),
+      id: doc.id,
     }));
 
     if (!isNaN(limit) && limit > 0) {
@@ -38,6 +39,7 @@ export const getDocument = async (req, res) => {
     const documentSnapshot = await getDocs(documentsCollection);
     const documents = documentSnapshot.docs.map((doc) => ({
       ...doc.data(),
+      id: doc.id,
     }));
 
     const document = documents.find((u) => u.id === ID);
